@@ -1,3 +1,4 @@
 # RichText
 UGUI RichText
-Tested on Unity5.3.4p2
+
+Already tested on Unity5.3.4p2
