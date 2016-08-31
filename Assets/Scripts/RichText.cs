@@ -65,10 +65,6 @@ namespace UnityEngine.UI
 
         private bool imageDirty;
 
-        // --------------- Size ---------------- //
-
-        private static readonly Regex SizeReg = new Regex(@"<size=(\d+)>([^(</size>)]*)</size>");
-
         // --------------- Event -------------- //
 
         private class Event
@@ -109,24 +105,18 @@ namespace UnityEngine.UI
             {
                 foreach (SpriteName icon in inspectorSpriteList)
                 {
-                    spriteList.Add(icon.name, icon.sprite);
+                    spriteList[icon.name] = icon.sprite;
                 }
             }
         }
 
         public void AddSprite(string name, Sprite sprite)
         {
-            if (!spriteList.ContainsKey(name))
-            {
-                List<SpriteName> list = new List<SpriteName>(inspectorSpriteList);
-                list.Add(new SpriteName() { name = name, sprite = sprite });
-                inspectorSpriteList = list.ToArray();
-                spriteList.Add(name, sprite);
-            }
-            else
-            {
-                Debug.LogError(string.Format("{0} is already in the sprite list", name));
-            }
+            List<SpriteName> list = new List<SpriteName>(inspectorSpriteList);
+            list.RemoveAll((SpriteName each) => each.name == name);
+            list.Add(new SpriteName() { name = name, sprite = sprite });
+            inspectorSpriteList = list.ToArray();
+            spriteList[name] = sprite;
         }
 
         public void ClearSprite()
@@ -299,7 +289,7 @@ namespace UnityEngine.UI
 
             float spaceWidth = cachedTextGenerator.GetPreferredWidth(ReplaceChar.ToString(), settings) * unitsPerPixel;
 
-            float fontRealSize = fontSize * pixelsPerUnit;
+            float fontSize2 = fontSize * 0.5f;
 
             // Image replace
             icons.Clear();
@@ -309,7 +299,7 @@ namespace UnityEngine.UI
             {
                 IconInfo iconInfo = new IconInfo();
                 iconInfo.name = match.Groups[1].Value;
-                iconInfo.size = new Vector2(fontRealSize, fontRealSize);
+                iconInfo.size = new Vector2(fontSize2, fontSize2);
                 float w = 1, h = 1;
                 string e = null, args = null;
                 string vars = match.Groups[2].Value;
@@ -404,7 +394,7 @@ namespace UnityEngine.UI
                     UIVertex vert = verts[vertice];
                     Vector2 vertex = vert.position;
                     vertex *= unitsPerPixel;
-                    vertex += new Vector2(iconInfo.size.x * 0.5f, fontRealSize * 0.5f);
+                    vertex += new Vector2(iconInfo.size.x * 0.5f, fontSize2 * 0.5f);
                     vertex += new Vector2(rectTransform.sizeDelta.x * (rectTransform.pivot.x - 0.5f), rectTransform.sizeDelta.y * (rectTransform.pivot.y - 0.5f));
                     iconInfo.position = vertex;
                     iconInfo.color = Color.white;
@@ -416,7 +406,7 @@ namespace UnityEngine.UI
                         e.args = iconInfo.args;
                         e.rect = new Rect(
                             verts[vertice].position.x * unitsPerPixel, 
-                            verts[vertice].position.y * unitsPerPixel + (fontRealSize - iconInfo.size.y) * 0.5f,
+                            verts[vertice].position.y * unitsPerPixel + (fontSize2 - iconInfo.size.y) * 0.5f,
                             iconInfo.size.x, 
                             iconInfo.size.y
                         );
@@ -483,7 +473,9 @@ namespace UnityEngine.UI
                 rt.localRotation = Quaternion.identity;
                 rt.localScale = Vector3.one;
             }
-            return go.GetComponent<Image>();
+            Image img = go.GetComponent<Image>();
+            img.raycastTarget = false;
+            return img;
         }
 
         private void ApplyShadowEffect(Shadow tag, IList<UIVertex> verts)
@@ -560,7 +552,7 @@ namespace UnityEngine.UI
 
         private void ApplyUnderlineEffect(Underline tag, IList<UIVertex> verts)
         {
-            float fontRealSize2 = fontSize * pixelsPerUnit * 0.5f;
+            float fontSize2 = fontSize * 0.5f;
             float unitsPerPixel = 1 / pixelsPerUnit;
 
             int start = tag.start * 4;
@@ -571,7 +563,7 @@ namespace UnityEngine.UI
             for (int i = start + 2; i <= end - 2; i += 4)
             {
                 vt2 = verts[i];
-                bool newline = Mathf.Abs(vt2.position.y - vt1.position.y) > fontRealSize2;
+                bool newline = Mathf.Abs(vt2.position.y - vt1.position.y) > fontSize2;
                 if (newline || i == end - 2)
                 {
                     IconInfo iconInfo = new IconInfo();
