@@ -405,9 +405,9 @@ namespace UnityEngine.UI
                         e.name = iconInfo.e;
                         e.args = iconInfo.args;
                         e.rect = new Rect(
-                            verts[vertice].position.x * unitsPerPixel, 
+                            verts[vertice].position.x * unitsPerPixel,
                             verts[vertice].position.y * unitsPerPixel + (fontSize2 - iconInfo.size.y) * 0.5f,
-                            iconInfo.size.x, 
+                            iconInfo.size.x,
                             iconInfo.size.y
                         );
                         eventList.Add(e);
@@ -492,7 +492,7 @@ namespace UnityEngine.UI
                 v.y += tag.y;
                 vt.position = v;
                 var newColor = tag.c;
-                newColor.a = (byte)((newColor.a * verts[i].color.a) / 255);
+                newColor.a = (newColor.a * verts[i].color.a) / 255;
                 vt.color = newColor;
                 verts[i] = vt;
             }
@@ -515,7 +515,7 @@ namespace UnityEngine.UI
                         v.y += tag.y * y;
                         vt.position = v;
                         var newColor = tag.c;
-                        newColor.a = (byte)((newColor.a * verts[i].color.a) / 255);
+                        newColor.a = (newColor.a * verts[i].color.a) / 255;
                         vt.color = newColor;
                         verts.Add(vt);
                     }
@@ -586,9 +586,9 @@ namespace UnityEngine.UI
                         e.name = tag.e;
                         e.args = tag.args;
                         e.rect = new Rect(
-                            vt1.position.x * unitsPerPixel, 
-                            minY * unitsPerPixel, 
-                            iconInfo.size.x, 
+                            vt1.position.x * unitsPerPixel,
+                            minY * unitsPerPixel,
+                            iconInfo.size.x,
                             (verts[tailIndex - 1].position.y - minY) * unitsPerPixel
                         );
                         eventList.Add(e);
