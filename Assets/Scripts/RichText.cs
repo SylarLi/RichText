@@ -7,7 +7,7 @@ using System;
 namespace UnityEngine.UI
 {
     /// <summary>
-    /// 图片<icon name=??? w=1 h=1 event=*** args=***/>
+    /// 图片<icon name=??? w=1 h=1 event=*** args=***/> 图片name和sprite需要通过调用AddSprite方法设置
     /// 阴影<material=shadow c=#000000 x=1 y=-1>blablabla...</material>
     /// 描边<material=outline c=#000000 x=1 y=-1>blablabla...</material>
     /// 渐变<material=gradient from=#FFFFFF to=#000000 x=0 y=-1>blablabla...</material>
@@ -161,7 +161,15 @@ namespace UnityEngine.UI
             eventList.Clear();
 
             // Caculate layout
-            richText = CalculateLayoutWithImage(richText, out verts);
+            try
+            {
+                richText = CalculateLayoutWithImage(richText, out verts);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning(e.ToString());
+                return;
+            }
 
             // Last 4 verts are always a new line...
             int vertCount = verts.Count;
@@ -211,28 +219,36 @@ namespace UnityEngine.UI
                 for (int i = 0; i < tags.Count; i++)
                 {
                     Tag tag = tags[i];
-                    switch (tag.type)
+                    try
                     {
-                        case TagType.Shadow:
-                            {
-                                ApplyShadowEffect(tag as Shadow, verts);
-                                break;
-                            }
-                        case TagType.Outline:
-                            {
-                                ApplyOutlineEffect(tag as Outline, verts);
-                                break;
-                            }
-                        case TagType.Gradient:
-                            {
-                                ApplyGradientEffect(tag as GradientL, verts);
-                                break;
-                            }
-                        case TagType.Underline:
-                            {
-                                ApplyUnderlineEffect(tag as Underline, verts);
-                                break;
-                            }
+                        switch (tag.type)
+                        {
+                            case TagType.Shadow:
+                                {
+                                    ApplyShadowEffect(tag as Shadow, verts);
+                                    break;
+                                }
+                            case TagType.Outline:
+                                {
+                                    ApplyOutlineEffect(tag as Outline, verts);
+                                    break;
+                                }
+                            case TagType.Gradient:
+                                {
+                                    ApplyGradientEffect(tag as GradientL, verts);
+                                    break;
+                                }
+                            case TagType.Underline:
+                                {
+                                    ApplyUnderlineEffect(tag as Underline, verts);
+                                    break;
+                                }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogWarning(e.ToString());
+                        return;
                     }
                 }
             }
@@ -560,6 +576,7 @@ namespace UnityEngine.UI
             UIVertex vt1 = verts[start + 3];
             UIVertex vt2;
             float minY = vt1.position.y;
+            float maxY = verts[start].position.y;
             for (int i = start + 2; i <= end - 2; i += 4)
             {
                 vt2 = verts[i];
@@ -571,6 +588,7 @@ namespace UnityEngine.UI
                     int tailIndex = !newline && i == end - 2 ? i : i - 4;
                     vt2 = verts[tailIndex];
                     minY = Mathf.Min(minY, vt2.position.y);
+                    maxY = Mathf.Max(maxY, verts[tailIndex - 1].position.y);
                     iconInfo.size = new Vector2((vt2.position.x - vt1.position.x) * unitsPerPixel, tag.h);
                     Vector2 vertex = new Vector2(vt1.position.x, minY);
                     vertex *= unitsPerPixel;
@@ -589,7 +607,7 @@ namespace UnityEngine.UI
                             vt1.position.x * unitsPerPixel,
                             minY * unitsPerPixel,
                             iconInfo.size.x,
-                            (verts[tailIndex - 1].position.y - minY) * unitsPerPixel
+                            (maxY - minY) * unitsPerPixel
                         );
                         eventList.Add(e);
                     }
@@ -601,6 +619,7 @@ namespace UnityEngine.UI
                 else
                 {
                     minY = Mathf.Min(minY, vt2.position.y);
+                    maxY = Mathf.Max(maxY, verts[i - 1].position.y);
                 }
             }
         }
