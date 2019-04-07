@@ -1,0 +1,6 @@
+RichText.sln
+RichText.csproj
+RichText.Editor.csproj
+.vs/
+Library/
+Temp/
