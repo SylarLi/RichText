@@ -393,7 +393,8 @@ namespace UnityEngine.UI
                 int vertice = iconInfo.vertice;
                 int vlength = iconInfo.vlength;
                 int maxVertice = Mathf.Min(vertice + vlength, vertCount);
-                if (verts[maxVertice - 2].position.x * unitsPerPixel > rectTransform.rect.xMax)
+                if (horizontalOverflow == HorizontalWrapMode.Wrap && 
+                    verts[maxVertice - 2].position.x * unitsPerPixel > rectTransform.rect.xMax)
                 {
                     // New line
                     richText = richText.Insert(vertice / 4, "\r\n");
